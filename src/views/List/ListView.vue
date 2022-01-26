@@ -43,17 +43,19 @@
             </div>
          </form>
       </Modal>
+      <HiddenMessage />
    </div>
 </template>
 <script>
 import Table from '@/components/Table.vue'
 import Modal from '@/components/Modal.vue'
+import HiddenMessage from '@/components/HiddenMessage.vue'
 import { computed, onMounted, reactive, watch } from 'vue'
 import { filterList, mapList } from './listHelper'
 import dummy from '@/assets/dummy.json'
 import timeout from 'q'
 export default {
-   components: { Table, Modal },
+   components: { Table, Modal, HiddenMessage },
    setup() {
       const tableConfig = {
          columns: [
