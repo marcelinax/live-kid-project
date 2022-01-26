@@ -7,6 +7,7 @@
                placeholder="Type here..."
                type="text"
                class="input"
+               :value="state.search"
             />
          </div>
       </div>
@@ -56,7 +57,7 @@ export default {
          await mockRequest()
          state.loading = false
       })
-      return { tableContent, tableConfig, onInput }
+      return { tableContent, tableConfig, onInput, state }
    }
 }
 </script>

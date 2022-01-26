@@ -1,9 +1,14 @@
 export const filterList = (item, search) => {
    const keysToFilter = ['name', 'status', 'img', 'tags']
-   return Object.entries(item).some(
-      ([key, value]) =>
-         keysToFilter.includes(key) && value.toLowerCase().includes(search)
-   )
+   return Object.entries(item).some(([key, value]) => {
+      return (
+         keysToFilter.includes(key) &&
+         value
+            .toString()
+            .toLowerCase()
+            .includes(search)
+      )
+   })
 }
 export const mapList = item => {
    const tags_display = item.tags.join(', ')
