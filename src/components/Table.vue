@@ -45,6 +45,7 @@ export default {
          default: false
       }
    },
+   emits: ['select'],
    setup(props, { emit }) {
       const tableConfig = computed(() => ({
          columns: props.config.columns,

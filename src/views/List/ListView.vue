@@ -7,21 +7,53 @@
                placeholder="Type here..."
                type="text"
                class="input"
-               :value="state.search"
             />
          </div>
       </div>
-      <Table :content="tableContent" :config="tableConfig" />
+      <Table
+         :content="tableContent"
+         :config="tableConfig"
+         @select="selectRow"
+      />
+      <Modal
+         :title="modalTitle"
+         :show="isModalShown"
+         @cancel="deselectRow"
+         @save="submitModal"
+      >
+         <form v-if="editForm" @submit.prevent="submitModal">
+            <div class="field has-text-left">
+               <label class="label has-text-black">Name</label>
+               <div class="control">
+                  <input
+                     v-model="editForm.name"
+                     placeholder="Name"
+                     type="text"
+                     class="input"
+                  />
+               </div>
+            </div>
+            <div class="field has-text-left">
+               <div class="select">
+                  <select v-model="editForm.status">
+                     <option value="verified">Verified</option>
+                     <option value="unverified">Unverified</option>
+                  </select>
+               </div>
+            </div>
+         </form>
+      </Modal>
    </div>
 </template>
 <script>
 import Table from '@/components/Table.vue'
-import { computed, onMounted, reactive } from 'vue'
+import Modal from '@/components/Modal.vue'
+import { computed, onMounted, reactive, watch } from 'vue'
 import { filterList, mapList } from './listHelper'
 import dummy from '@/assets/dummy.json'
 import timeout from 'q'
 export default {
-   components: { Table },
+   components: { Table, Modal },
    setup() {
       const tableConfig = {
          columns: [
@@ -36,15 +68,62 @@ export default {
          items: [],
          initLoading: true,
          search: '',
-         timeout
+         timeout,
+         selectedRow: null
       })
+
+      const editForm = reactive({
+         name: '',
+         status: ''
+      })
+
       const tableContent = computed(() =>
          state.items.filter(item => filterList(item, state.search)).map(mapList)
       )
+
+      const selectRow = row => {
+         state.selectedRow = row
+      }
+
+      const deselectRow = () => {
+         state.selectedRow = null
+      }
+
       const onInput = ({ target: { value } }) => {
          clearTimeout(timeout)
          state.timeout = setTimeout(() => (state.search = value), 500)
       }
+
+      const submitModal = () => {
+         const index = state.items.findIndex(
+            item => item.id === state.selectedRow.id
+         )
+
+         state.items[index] = {
+            ...state.items[index],
+            name: editForm.name,
+            status: editForm.status
+         }
+         state.items = [...state.items]
+         state.selectedRow = null
+      }
+
+      watch(
+         () => state.selectedRow,
+         () => {
+            editForm.name = state.selectedRow?.name ?? ''
+            editForm.status = state.selectedRow?.status ?? ''
+         }
+      )
+
+      const modalTitle = computed(() => {
+         return `Edit ${state.selectedRow?.name}`
+      })
+
+      const isModalShown = computed(() => {
+         return !!state.selectedRow
+      })
+
       const mockRequest = () => {
          return new Promise(resolve => {
             setTimeout(() => {
@@ -57,7 +136,18 @@ export default {
          await mockRequest()
          state.loading = false
       })
-      return { tableContent, tableConfig, onInput, state }
+      return {
+         tableContent,
+         tableConfig,
+         onInput,
+         state,
+         selectRow,
+         deselectRow,
+         modalTitle,
+         isModalShown,
+         editForm,
+         submitModal
+      }
    }
 }
 </script>
